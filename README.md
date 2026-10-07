@@ -1,43 +1,36 @@
-# ARM1.5 + LinkerHand O7 dijital ikiz başlangıç projesi
+# ARM1.5 + LinkerHand O7 digital twin starter project
 
-Bu çalışma alanı, kullanıcı tarafından verilen 6 eksenli ARM1.5 modeli ile
-`linker-bot/linkerhand-urdf` deposundaki **sağ O7** modelini tek bir ROS 2 robotu
-olarak birleştirir. Hedef ortam Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic,
-`gz_ros2_control` ve MoveIt 2'dir.
+This workspace combines the user-supplied six-axis ARM1.5 model with the **right O7** model from the `linker-bot/linkerhand-urdf` repository as one ROS 2 robot. The target environment is Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic, `gz_ros2_control`, and MoveIt 2.
 
-Bu teslim çalışır bir simülasyon/planlama temeli ve fail-closed dijital-ikiz komut
-hakemi içerir. Fiziksel kol sürücüsü arşivde bulunmadığı için gerçek robota komut
-çıkışı varsayılan olarak kapalıdır. Sağ/sol O7 seçimi de kesinleştirilmelidir;
-fotoğrafa dayanarak sağ O7 varsayıldı.
+This delivery includes a working simulation/planning foundation and a fail-closed digital-twin command arbiter. Because the physical arm driver was not included in the archive, command output to the real robot is disabled by default. The right/left O7 choice must also be confirmed; right O7 was assumed from the photograph.
 
-## Hazır olanlar
+## Included
 
-- 6 ARM + 7 bağımsız O7 aktüatörü; O7'nin 10 mekanik bağlı eklemi `mimic`
-- Düzeltilmiş mesh URI'leri, benzersiz link/joint adları ve zemine sabit robot kökü
-- Gazebo Harmonic için `gz_ros2_control` ve iki trajectory controller
-- MoveIt grupları: `arm`, `hand`, `arm_with_hand`
-- Ham görsel meshlerden türetilmiş, çok daha hafif dışbükey collision meshleri
-- Güvenli modlar: `SAFE_IDLE`, `SIM_ONLY`, `SHADOW`, `TWIN_COMMAND`, `REAL_ONLY`
-- Heartbeat, deadman, stale-state, başlangıç farkı, takip hatası ve eklem limiti interlock'ları
-- Gerçek O7 SDK'sı için ayrı, varsayılan kapalı adaptör paketi
-- Ayrı fiziksel kol/el durumlarını tek sahipli `/real/joint_states` akışında birleştiren mux
-- ROS kurulumu olmadan koşabilen statik doğrulama ve saf mantık testleri
+- 6 ARM + 7 independent O7 actuators; 10 mechanically linked O7 joints use `mimic`
+- Corrected mesh URIs, unique link/joint names, and a ground-fixed robot root
+- `gz_ros2_control` and two trajectory controllers for Gazebo Harmonic
+- MoveIt groups: `arm`, `hand`, `arm_with_hand`
+- Much lighter convex collision meshes derived from the raw visual meshes
+- Safety modes: `SAFE_IDLE`, `SIM_ONLY`, `SHADOW`, `TWIN_COMMAND`, `REAL_ONLY`
+- Heartbeat, deadman, stale-state, startup-error, tracking-error, and joint-limit interlocks
+- Separate, disabled-by-default adapter package for the real O7 SDK
+- A mux that combines separate physical arm/hand state into the single-owner `/real/joint_states` stream
+- Static validation and pure-logic tests that run without a ROS installation
 
-## Paketler
+## Packages
 
-| Paket | Görev |
+| Package | Purpose |
 |---|---|
-| `arm_o7_description` | Birleşik Xacro/URDF, orijinal ve collision meshleri, ros2_control tanımı |
-| `arm_o7_bringup` | Gazebo dünyası, spawn, controller sıralaması ve iki-terminal launch akışı |
-| `arm_o7_moveit_config` | SRDF, KDL, OMPL, joint limits, controller ve RViz ayarları |
-| `arm_o7_twin` | Sim/real komut hakemi, SHADOW aynalama ve güvenlik interlock'ları |
-| `arm_o7_linkerhand_adapter` | O7'nin resmi ROS 2 SDK topic'leri ile canonical el arayüzü arasında adaptör |
-| `arm_o7_glove` | 5DT veri eldiveniyle O7 elini simülasyonda sürme ve gerçek Ti5 eline aktarma |
+| `arm_o7_description` | Combined Xacro/URDF, original and collision meshes, ros2_control definition |
+| `arm_o7_bringup` | Gazebo world, spawn, controller sequencing, and two-terminal launch flow |
+| `arm_o7_moveit_config` | SRDF, KDL, OMPL, joint limits, controller, and RViz settings |
+| `arm_o7_twin` | Sim/real command arbiter, SHADOW mirroring, and safety interlocks |
+| `arm_o7_linkerhand_adapter` | Adapter between the official O7 ROS 2 SDK topics and the canonical hand interface |
+| `arm_o7_glove` | Drive the O7 hand in simulation with a 5DT data glove and forward to the real Ti5 hand |
 
-## İlk kurulum
+## Initial setup
 
-Projeyi WSL içindeki Linux home dizinine kopyalamak, `/mnt/c` üzerinde derlemekten
-daha hızlı ve daha problemsizdir:
+Copying the project to the Linux home directory in WSL is faster and more reliable than building under `/mnt/c`:
 
 ```bash
 cd ~/arm_o7_digital_twin
@@ -45,67 +38,57 @@ bash scripts/install_dependencies.sh
 bash scripts/build.sh
 ```
 
-Hızlı kullanım için [QUICKSTART_TR.md](QUICKSTART_TR.md) dosyasını izleyin.
-Projeyi başka bir ekip bilgisayarına kurmak için önce
-[TEAM_START_HERE_TR.md](TEAM_START_HERE_TR.md) dosyasını izleyin. Paket donanım
-markasına bağlı değildir; WSLg ekran kartını otomatik seçer ve gerekirse
-`ARM_O7_GPU_ADAPTER` ile seçim yapılabilir.
+For quick use, follow [QUICKSTART.md](QUICKSTART.md). To install the project on another team computer, first follow [TEAM_START_HERE.md](TEAM_START_HERE.md). The package is not tied to a hardware brand; it automatically selects the WSLg graphics adapter, and `ARM_O7_GPU_ADAPTER` can be used when necessary.
 
-## İki Ubuntu terminali
+## Two Ubuntu terminals
 
-Terminal 1 — Gazebo dünya sunucusu, GUI ve tek yönlü `/clock` köprüsü:
+Terminal 1 — Gazebo world server, GUI, and one-way `/clock` bridge:
 
 ```bash
 cd ~/arm_o7_digital_twin
 bash scripts/terminal1_gazebo.sh
 ```
 
-Terminal 2 — robotu spawn et, controller'ları sırayla aç, MoveIt/RViz ve güvenli
-hakemi başlat:
+Terminal 2 — spawn the robot, start controllers in order, and launch MoveIt/RViz and the safety arbiter:
 
 ```bash
 cd ~/arm_o7_digital_twin
 bash scripts/terminal2_robot.sh
 ```
 
-Simülasyon doğrulama hareketi:
+Simulation validation motion:
 
 ```bash
 cd ~/arm_o7_digital_twin
 bash scripts/demo_sim_motion.sh
 ```
 
-Bu demo yalnız `/sim/...` action'larına gider; hiçbir `/real/...` çıkışı üretmez.
+This demo uses only `/sim/...` actions and produces no `/real/...` output.
 
-`open`, `middle_finger` ve `four_finger_fist` el jestlerini sırayla göstermek için:
+To demonstrate the `open`, `middle_finger`, and `four_finger_fist` hand gestures in sequence:
 
 ```bash
 bash scripts/demo_hand_gestures.sh
 ```
 
-Beklenen son satır `HAND_GESTURE_DEMO=PASS` olur.
+The expected final line is `HAND_GESTURE_DEMO=PASS`.
 
-İlk hareketten sonra yerel dijital ikiz yeterlilik testi:
+Local digital-twin qualification test after the first motion:
 
 ```bash
 cd ~/arm_o7_digital_twin
 bash scripts/run_qualification.sh 1 2>&1 | tee qualification.log
 ```
 
-Test; controller ve action sunucularını, MoveIt state-validity sonuçlarını,
-`/joint_states` hızını, Gazebo gerçek-zaman oranını, MoveIt plan/yürütmesini ve
-son eklem hatalarını birlikte ölçer. `home`, `ready`, `left_demo`, `open`,
-`pregrasp`, `four_finger_fist` ve `middle_finger` hareketlerini kullanır. JSON ve
-CSV kanıtları `results/digital_twin_qualification/` altında tarihli klasöre
-yazılır. İlk tek döngü geçtikten sonra on tekrarlı regresyon çalıştırın:
+The test measures controllers and action servers, MoveIt state-validity results, `/joint_states` rate, Gazebo real-time factor, MoveIt planning/execution, and final joint errors together. It uses the `home`, `ready`, `left_demo`, `open`, `pregrasp`, `four_finger_fist`, and `middle_finger` motions. JSON and CSV evidence is written to a dated directory under `results/digital_twin_qualification/`. After the single cycle passes, run the ten-cycle regression:
 
 ```bash
 bash scripts/run_qualification.sh 10 2>&1 | tee qualification_10_cycles.log
 ```
 
-## Eldivenle kontrol (5DT eldiven + Ti5 el)
+## Glove control (5DT glove + Ti5 hand)
 
-Terminal 1 ve Terminal 2 açıkken üçüncü terminalde:
+With Terminal 1 and Terminal 2 open, use a third terminal:
 
 ```bash
 cd ~/arm_o7_digital_twin
@@ -114,16 +97,12 @@ source install/setup.bash
 ros2 launch arm_o7_glove glove_teleop.launch.py
 ```
 
-Açılan pencerede önce **Calibrate glove** ile eldiveni kalibre edin (açık el,
-sonra yumruk); her açılışta zorunludur. Ardından **ON** eldivenle simülasyondaki
-eli sürer. **Also move the REAL Ti5 hand** işaretliyse gerçek Ti5 el de
-eldiveni izler. Cihaz izinleri için gereken udev kuralı, eşleme ve güvenlik
-ayrıntıları [src/arm_o7_glove/README.md](src/arm_o7_glove/README.md) içindedir.
+In the window that opens, first calibrate the glove with **Calibrate glove** (open hand, then fist); this is required at every startup. **ON** then drives the simulated hand with the glove. If **Also move the REAL Ti5 hand** is checked, the real Ti5 hand also follows the glove. Device permissions, the required udev rule, mapping, and safety details are in [src/arm_o7_glove/README.md](src/arm_o7_glove/README.md).
 
-## Tasarım sınırı: simülasyon ile gerçek donanım
+## Design boundary: simulation and real hardware
 
 ```text
-Eldiven / operatör UI / onaylı plan
+Glove / operator UI / approved plan
                  |
           /twin/joint_trajectory
                  |
@@ -133,71 +112,50 @@ Eldiven / operatör UI / onaylı plan
           \                 /
        sim ve real joint_states
                  |
-        takip-hatası gözlemcisi
+        tracking-error observer
 ```
 
-Gerçek ve sim joint state topic'leri birbirinin command topic'ine doğrudan
-bağlanmaz. `SHADOW` modunda gerçek durum yalnız simülasyona yansır. `TWIN_COMMAND`
-modunda aynı doğrulanmış referans iki backend'e ayrılır; sonuçlar ayrıca
-karşılaştırılır. Böylece iki yönlü veri akışı bir pozitif geri-besleme döngüsüne
-dönüşmez.
+Real and sim joint-state topics are not connected directly to each other's command topic. In `SHADOW` mode, real state is reflected only into simulation. In `TWIN_COMMAND` mode, the same validated reference is split to both backends and the results are also compared. This prevents bidirectional data flow from becoming a positive-feedback loop.
 
-MoveIt/RViz bu ilk teslimde doğrudan `/sim` action controller'larını yürütür.
-Fiziksel yürütme özellikle hakem topic'inden geçirilmiştir; MoveIt için izlenebilir
-ve iptal edilebilir bir downstream action proxy, gerçek kol sürücüsü belli olduktan
-sonra ikinci aşamada eklenmelidir.
+In this first delivery, MoveIt/RViz directly executes `/sim` action controllers. Physical execution is deliberately routed through the arbiter topic; a traceable and cancellable downstream action proxy for MoveIt should be added in a second phase after the real arm driver is known.
 
-## Bilinçli olarak etkinleştirilmeyenler
+## Deliberately disabled
 
-- `enable_real_output` varsayılanı `false`
-- O7 adaptöründe `mapping_verified` varsayılanı `false`
-- O7 adaptöründe `command_enabled` varsayılanı `false`
-- Fiziksel kol için sahte bir sürücü yok
-- Üretici tarafından verilmemiş hız/efor değerleri fiziksel limit kabul edilmiyor
-- Ağ kaybında yalnız ROS düğümüne güvenilmiyor; sürücü watchdog'u ve fiziksel E-stop şart
+- `enable_real_output` defaults to `false`
+- `mapping_verified` in the O7 adapter defaults to `false`
+- `command_enabled` in the O7 adapter defaults to `false`
+- No fake driver is provided for the physical arm
+- Velocity/effort values not supplied by the manufacturer are not treated as physical limits
+- A ROS node is not trusted alone on network loss; a driver watchdog and physical E-stop are required
 
-## Bir sonraki aşama için gereken ölçü/bilgiler
+## Measurements/information required for the next phase
 
-1. Kolun marka/modeli, motor sürücüleri ve haberleşme protokolü (CAN, EtherCAT,
-   Modbus/TCP, seri vb.).
-2. Fiziksel eklem sırası, pozitif yönleri, encoder sıfırları, hız/ivme/efor sınırları.
-3. O7'nin sağ mı sol mu olduğu, firmware/SDK sürümü ve CAN/RS485 seçimi.
-4. `arm_flange -> hand_base_link` adaptör kalınlığı ve RPY dönüşümü. Başlangıç
-   varsayımı `xyz="0 0 0"`, `rpy="0 0 0"`dır.
-5. Eldivenin mesaj formatı, IMU modeli/frekansı, deadman düğmesi ve varsa parmak
-   bükülme sensörleri.
-6. Bağımsız fiziksel E-stop ve sürücü watchdog davranışı.
+1. Arm make/model, motor drivers, and communication protocol (CAN, EtherCAT, Modbus/TCP, serial, etc.).
+2. Physical joint order, positive directions, encoder zeros, and velocity/acceleration/effort limits.
+3. Whether O7 is right or left, firmware/SDK version, and CAN/RS485 selection.
+4. `arm_flange -> hand_base_link` adapter thickness and RPY transform. The initial assumption is `xyz="0 0 0"`, `rpy="0 0 0"`.
+5. Glove message format, IMU model/frequency, deadman button, and any finger-bend sensors.
+6. Independent physical E-stop and driver watchdog behavior.
 
-Jiroskop tek başına yalnız açısal hız/orientasyon sağlar; elin uzaydaki mutlak
-konumunu veya tek tek parmak bükülmelerini güvenilir biçimde ölçmez. Ayrıntı için
-[GLOVE_INTERFACE_TR.md](docs/GLOVE_INTERFACE_TR.md) dosyasına bakın.
+Gyroscopes alone provide only angular velocity/orientation; they do not reliably measure the hand's absolute position in space or individual finger bends. See [GLOVE_INTERFACE.md](docs/GLOVE_INTERFACE.md) for details.
 
-## Doğrulama durumu
+## Validation status
 
-- Xacro hem `none` hem `sim` modunda açıldı.
-- Oluşan URDF: 26 link, 25 joint, tek kök `world`, 13 komutlanabilir joint.
-- URDF ağacı, mimic oranları, limitler, mesh URI/hashleri, ros2_control ve SRDF
-  statik testten geçti.
-- `arm_o7_twin` saf güvenlik testleri: 18/18 geçti.
-- O7 adaptörünün eşleme/interpolasyon/mux saf mantık testleri: 10/10 geçti.
-- Ubuntu 24.04 / ROS 2 Jazzy / WSL2 çalışma zamanı doğrulamasında 5 paket derlendi;
-  28 test 0 hata ve 0 failure ile geçti.
-- Gazebo ile RViz eşzamanlı joint-state hareketi, dört aktif controller ve birleşik
-  kol-el demosunda `COMBINED_SIM_TEST=PASS` sonucu doğrulandı.
+- Xacro opened in both `none` and `sim` modes.
+- Generated URDF: 26 links, 25 joints, one `world` root, and 13 commandable joints.
+- The URDF tree, mimic ratios, limits, mesh URIs/hashes, ros2_control, and SRDF passed static tests.
+- `arm_o7_twin` pure safety tests: 18/18 passed.
+- O7 adapter mapping/interpolation/mux pure-logic tests: 10/10 passed.
+- Runtime validation on Ubuntu 24.04 / ROS 2 Jazzy / WSL2 built 5 packages; 28 tests passed with 0 errors and 0 failures.
+- Synchronized Gazebo/RViz joint-state motion, four active controllers, and the combined arm-hand demo produced `COMBINED_SIM_TEST=PASS`.
 
-## Kaynak ve lisans
+## Sources and license
 
 - LinkerHand O7: upstream commit
   `075cc7d42cc1e756bdcbece0fc069a0779fc5237`, Apache-2.0.
-- ARM1.5 varlıkları kullanıcı arşivinden geldi; arşivde lisans yoktu.
-- Ayrıntı: `src/arm_o7_description/SOURCE_ASSETS.md`, `LICENSES/` ve
-  `ASSET_MANIFEST.sha256`.
+- ARM1.5 assets came from a user archive; the archive contained no license.
+- Details: `src/arm_o7_description/SOURCE_ASSETS.md`, `LICENSES/`, and `ASSET_MANIFEST.sha256`.
 
-Teknik akış ve topic sözleşmesi için [ARCHITECTURE_TR.md](docs/ARCHITECTURE_TR.md),
-fiziksel devreye alma için [HARDWARE_INTEGRATION_TR.md](docs/HARDWARE_INTEGRATION_TR.md)
-dosyalarını okuyun.
+Read [ARCHITECTURE.md](docs/ARCHITECTURE.md) for the technical flow and topic contract, and [HARDWARE_INTEGRATION.md](docs/HARDWARE_INTEGRATION.md) for physical commissioning.
 
-İki bilgisayar / Raspberry Pi arasında yalnız simülasyon komutu gönderme deneyi
-için [NETWORK_TWO_HOSTS_TR.md](docs/NETWORK_TWO_HOSTS_TR.md), projeyi ekip içinde
-GitHub'a yüklemek için [GITHUB_PUBLISH_TR.md](docs/GITHUB_PUBLISH_TR.md)
-dosyalarını izleyin.
+For an experiment that sends simulation commands between two computers/Raspberry Pis, follow [NETWORK_TWO_HOSTS.md](docs/NETWORK_TWO_HOSTS.md). To publish the project to GitHub for the team, follow [GITHUB_PUBLISH.md](docs/GITHUB_PUBLISH.md).

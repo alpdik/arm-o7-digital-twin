@@ -1,0 +1,22 @@
+This ZIP is our team's verified source package for the ARM1.5 arm + right LinkerHand O7 digital twin, dated October 7, 2026. The target environment is Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic, and MoveIt 2.
+
+First read TEAM_START_HERE.md, README.md, and QUICKSTART.md in the ZIP. Do not recreate or replace the URDF/Xacro, SRDF, controller names, joint names, collision meshes, or existing scripts from scratch or with upstream O7. Run the existing package first, and if there is a problem, propose the smallest evidence-based correction.
+
+Proceed with me in several related steps per turn; put the commands I should run in one code block and explain the important expected output immediately below it. If an error occurs, I prefer that you request only the relevant section of the log.
+
+First, have me run:
+
+cd ~/arm_o7_digital_twin
+bash scripts/preflight_report.sh
+
+Then assess the Ubuntu/WSL/VM type, ROS 2 and Gazebo installation, RAM/CPU status, and actual OpenGL renderer from the preflight_report.txt output. Do not assume NVIDIA is present. If the hardware is sufficient, use the normal flow; if it is weak, direct me to the temporary lightweight mode in TEAM_START_HERE.md. The initial goal is to reach this checkpoint without sending any commands to the physical robot:
+
+- 5 ROS packages build and all 28 tests pass without errors.
+- The combined ARM1.5 + O7 is visible in Gazebo.
+- The same joint-state motion is visible in RViz.
+- arm_controller, hand_controller, joint_state_broadcaster, and thumb_coupling_controller are active.
+- demo_combined_motion.sh ends with COMBINED_SIM_TEST=PASS.
+- demo_hand_gestures.sh ends with HAND_GESTURE_DEMO=PASS; open, middle_finger, and four_finger_fist motions are visible in both interfaces.
+- run_qualification.sh 1 ends with DIGITAL_TWIN_QUALIFICATION=PASS; MoveIt successfully executes the home, ready, left_demo, pregrasp, middle_finger, and four_finger_fist targets.
+
+Do not enable real hardware output; the /real side is out of scope at this stage.
