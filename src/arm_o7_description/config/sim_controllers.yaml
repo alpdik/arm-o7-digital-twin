@@ -1,0 +1,72 @@
+/**/controller_manager:
+  ros__parameters:
+    update_rate: 250
+    enforce_command_limits: true
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    hand_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    thumb_coupling_controller:
+      type: position_controllers/JointGroupPositionController
+
+/**/arm_controller:
+  ros__parameters:
+    joints:
+      - arm_joint_1
+      - arm_joint_2
+      - arm_joint_3
+      - arm_joint_4
+      - arm_joint_5
+      - arm_joint_6
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+    interpolate_from_desired_state: true
+    constraints:
+      stopped_velocity_tolerance: 0.02
+      goal_time: 1.0
+      arm_joint_1: {trajectory: 0.15, goal: 0.05}
+      arm_joint_2: {trajectory: 0.15, goal: 0.05}
+      arm_joint_3: {trajectory: 0.15, goal: 0.05}
+      arm_joint_4: {trajectory: 0.15, goal: 0.05}
+      arm_joint_5: {trajectory: 0.15, goal: 0.05}
+      arm_joint_6: {trajectory: 0.15, goal: 0.05}
+
+/**/hand_controller:
+  ros__parameters:
+    joints:
+      - thumb_cmc_roll
+      - thumb_cmc_yaw
+      - thumb_cmc_pitch
+      - index_mcp_pitch
+      - middle_mcp_pitch
+      - ring_mcp_pitch
+      - pinky_mcp_pitch
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+    interpolate_from_desired_state: true
+    constraints:
+      stopped_velocity_tolerance: 0.03
+      goal_time: 1.0
+      thumb_cmc_roll: {trajectory: 0.20, goal: 0.08}
+      thumb_cmc_yaw: {trajectory: 0.20, goal: 0.08}
+      thumb_cmc_pitch: {trajectory: 0.20, goal: 0.08}
+      index_mcp_pitch: {trajectory: 0.20, goal: 0.08}
+      middle_mcp_pitch: {trajectory: 0.20, goal: 0.08}
+      ring_mcp_pitch: {trajectory: 0.20, goal: 0.08}
+      pinky_mcp_pitch: {trajectory: 0.20, goal: 0.08}
+
+/**/thumb_coupling_controller:
+  ros__parameters:
+    joints:
+      - thumb_mcp
+      - thumb_ip

@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="position_joint" params="name lower upper initial:=0.0">
+    <joint name="${name}">
+      <command_interface name="position">
+        <param name="min">${lower}</param>
+        <param name="max">${upper}</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">${initial}</param>
+      </state_interface>
+      <state_interface name="velocity" />
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="mimic_state_joint" params="name source multiplier">
+    <joint name="${name}">
+      <param name="mimic">${source}</param>
+      <param name="multiplier">${multiplier}</param>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity" />
+    </joint>
+  </xacro:macro>
+
+  <!-- DART does not provide native mimic constraints. These command interfaces
+       let a simulation-only coupling node drive joints that DART leaves fixed. -->
+  <xacro:macro name="sim_coupled_position_joint" params="name lower upper initial">
+    <joint name="${name}" mimic="false">
+      <command_interface name="position">
+        <param name="min">${lower}</param>
+        <param name="max">${upper}</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">${initial}</param>
+      </state_interface>
+      <state_interface name="velocity" />
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="arm_o7_ros2_control" params="hardware_type">
+    <ros2_control name="ArmO7System" type="system">
+      <hardware>
+        <xacro:if value="${hardware_type == 'sim'}">
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${hardware_type == 'mock'}">
+          <plugin>mock_components/GenericSystem</plugin>
+          <param name="calculate_dynamics">false</param>
+        </xacro:if>
+      </hardware>
+
+      <xacro:position_joint name="arm_joint_1" lower="-3.14" upper="3.14" />
+      <xacro:position_joint name="arm_joint_2" lower="-1.57" upper="1.57" />
+      <xacro:position_joint name="arm_joint_3" lower="-1.30" upper="1.30" />
+      <xacro:position_joint name="arm_joint_4" lower="-3.14" upper="3.14" />
+      <xacro:position_joint name="arm_joint_5" lower="-1.30" upper="1.30" />
+      <xacro:position_joint name="arm_joint_6" lower="-3.14" upper="3.14" />
+
+      <!-- A small positive simulated initial value avoids negative-zero solver
+           noise being interpreted as a lower-limit violation at exactly 0 rad. -->
+      <xacro:position_joint name="thumb_cmc_roll" lower="0.0" upper="1.1339" initial="0.001" />
+      <xacro:position_joint name="thumb_cmc_yaw" lower="0.0" upper="1.9189" initial="0.001" />
+      <xacro:position_joint name="thumb_cmc_pitch" lower="0.0" upper="0.5146" initial="0.001" />
+      <xacro:position_joint name="index_mcp_pitch" lower="0.0" upper="1.3607" initial="0.001" />
+      <xacro:position_joint name="middle_mcp_pitch" lower="0.0" upper="1.3607" initial="0.001" />
+      <xacro:position_joint name="ring_mcp_pitch" lower="0.0" upper="1.3607" initial="0.001" />
+      <xacro:position_joint name="pinky_mcp_pitch" lower="0.0" upper="1.3607" initial="0.001" />
+
+      <!-- Gazebo Harmonic with DART can leave the two O7 thumb followers fixed.
+           They are explicitly coupled in simulation while the external hand API
+           remains the canonical seven actuated O7 joints. -->
+      <xacro:if value="${hardware_type == 'sim'}">
+        <xacro:sim_coupled_position_joint name="thumb_mcp" lower="0.0" upper="0.7152" initial="0.0013898" />
+        <xacro:sim_coupled_position_joint name="thumb_ip" lower="0.0" upper="0.7763" initial="0.0015085" />
+      </xacro:if>
+      <xacro:unless value="${hardware_type == 'sim'}">
+        <xacro:mimic_state_joint name="thumb_mcp" source="thumb_cmc_pitch" multiplier="1.3898" />
+        <xacro:mimic_state_joint name="thumb_ip" source="thumb_cmc_pitch" multiplier="1.5085" />
+      </xacro:unless>
+
+      <!-- The remaining mimic joints expose state only. -->
+      <xacro:mimic_state_joint name="index_pip" source="index_mcp_pitch" multiplier="1.3462" />
+      <xacro:mimic_state_joint name="index_dip" source="index_mcp_pitch" multiplier="0.4615" />
+      <xacro:mimic_state_joint name="middle_pip" source="middle_mcp_pitch" multiplier="1.3462" />
+      <xacro:mimic_state_joint name="middle_dip" source="middle_mcp_pitch" multiplier="0.4615" />
+      <xacro:mimic_state_joint name="ring_pip" source="ring_mcp_pitch" multiplier="1.3462" />
+      <xacro:mimic_state_joint name="ring_dip" source="ring_mcp_pitch" multiplier="0.4615" />
+      <xacro:mimic_state_joint name="pinky_pip" source="pinky_mcp_pitch" multiplier="1.3462" />
+      <xacro:mimic_state_joint name="pinky_dip" source="pinky_mcp_pitch" multiplier="0.4615" />
+    </ros2_control>
+  </xacro:macro>
+</robot>

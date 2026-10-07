@@ -1,0 +1,16 @@
+# These motion-planning limits are deliberately below the provisional simulation URDF limits.
+# Replace them only after measuring and documenting the physical robot's certified limits.
+joint_limits:
+  arm_joint_1: {has_velocity_limits: true, max_velocity: 0.35, has_acceleration_limits: true, max_acceleration: 0.70}
+  arm_joint_2: {has_velocity_limits: true, max_velocity: 0.35, has_acceleration_limits: true, max_acceleration: 0.70}
+  arm_joint_3: {has_velocity_limits: true, max_velocity: 0.35, has_acceleration_limits: true, max_acceleration: 0.70}
+  arm_joint_4: {has_velocity_limits: true, max_velocity: 0.45, has_acceleration_limits: true, max_acceleration: 0.90}
+  arm_joint_5: {has_velocity_limits: true, max_velocity: 0.45, has_acceleration_limits: true, max_acceleration: 0.90}
+  arm_joint_6: {has_velocity_limits: true, max_velocity: 0.50, has_acceleration_limits: true, max_acceleration: 1.00}
+  thumb_cmc_roll: {has_velocity_limits: true, max_velocity: 0.80, has_acceleration_limits: true, max_acceleration: 1.50}
+  thumb_cmc_yaw: {has_velocity_limits: true, max_velocity: 0.80, has_acceleration_limits: true, max_acceleration: 1.50}
+  thumb_cmc_pitch: {has_velocity_limits: true, max_velocity: 0.80, has_acceleration_limits: true, max_acceleration: 1.50}
+  index_mcp_pitch: {has_velocity_limits: true, max_velocity: 0.80, has_acceleration_limits: true, max_acceleration: 1.50}
+  middle_mcp_pitch: {has_velocity_limits: true, max_velocity: 0.80, has_acceleration_limits: true, max_acceleration: 1.50}
+  ring_mcp_pitch: {has_velocity_limits: true, max_velocity: 0.80, has_acceleration_limits: true, max_acceleration: 1.50}
+  pinky_mcp_pitch: {has_velocity_limits: true, max_velocity: 0.80, has_acceleration_limits: true, max_acceleration: 1.50}

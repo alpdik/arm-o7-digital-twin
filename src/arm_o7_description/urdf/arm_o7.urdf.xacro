@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot name="arm_o7" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="hardware_type" default="none" />
+  <xacro:arg name="controllers_file" default="" />
+  <xacro:arg name="ros_namespace" default="/sim" />
+  <xacro:arg name="base_xyz" default="0 0 0" />
+  <xacro:arg name="base_rpy" default="0 0 0" />
+  <xacro:arg name="hand_mount_xyz" default="0 0 0" />
+  <xacro:arg name="hand_mount_rpy" default="0 0 0" />
+
+  <xacro:property name="hardware_type_value" value="$(arg hardware_type)" />
+
+  <xacro:include filename="arm1_5.macro.xacro" />
+  <xacro:include filename="o7_right.macro.xacro" />
+  <xacro:include filename="ros2_control.macro.xacro" />
+
+  <!-- Gazebo recognizes the special world parent and anchors the arm base. -->
+  <link name="world" />
+  <xacro:arm1_5
+    parent="world"
+    base_xyz="$(arg base_xyz)"
+    base_rpy="$(arg base_rpy)" />
+  <xacro:linkerhand_o7_right
+    parent="arm_flange"
+    mount_xyz="$(arg hand_mount_xyz)"
+    mount_rpy="$(arg hand_mount_rpy)" />
+
+  <xacro:unless value="${hardware_type_value == 'none'}">
+    <xacro:arm_o7_ros2_control hardware_type="${hardware_type_value}" />
+  </xacro:unless>
+
+  <xacro:if value="${hardware_type_value == 'sim'}">
+    <gazebo>
+      <plugin
+        filename="libgz_ros2_control-system.so"
+        name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>$(arg controllers_file)</parameters>
+        <controller_manager_name>controller_manager</controller_manager_name>
+        <hold_joints>true</hold_joints>
+        <position_proportional_gain>0.35</position_proportional_gain>
+        <ros>
+          <namespace>$(arg ros_namespace)</namespace>
+          <remapping>/robot_description:=$(arg ros_namespace)/robot_description</remapping>
+        </ros>
+      </plugin>
+    </gazebo>
+  </xacro:if>
+</robot>

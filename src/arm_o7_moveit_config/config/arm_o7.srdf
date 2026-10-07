@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<robot name="arm_o7">
+  <group name="arm">
+    <chain base_link="arm_base_link" tip_link="arm_flange" />
+  </group>
+
+  <group name="hand">
+    <joint name="thumb_cmc_roll" />
+    <joint name="thumb_cmc_yaw" />
+    <joint name="thumb_cmc_pitch" />
+    <joint name="index_mcp_pitch" />
+    <joint name="middle_mcp_pitch" />
+    <joint name="ring_mcp_pitch" />
+    <joint name="pinky_mcp_pitch" />
+  </group>
+
+  <group name="arm_with_hand">
+    <group name="arm" />
+    <group name="hand" />
+  </group>
+
+  <end_effector name="o7_right" parent_link="arm_flange" group="hand" parent_group="arm" />
+
+  <group_state name="home" group="arm">
+    <joint name="arm_joint_1" value="0" />
+    <joint name="arm_joint_2" value="0" />
+    <joint name="arm_joint_3" value="0" />
+    <joint name="arm_joint_4" value="0" />
+    <joint name="arm_joint_5" value="0" />
+    <joint name="arm_joint_6" value="0" />
+  </group_state>
+
+  <group_state name="ready" group="arm">
+    <joint name="arm_joint_1" value="0" />
+    <joint name="arm_joint_2" value="-0.45" />
+    <joint name="arm_joint_3" value="0.80" />
+    <joint name="arm_joint_4" value="0" />
+    <joint name="arm_joint_5" value="-0.35" />
+    <joint name="arm_joint_6" value="0" />
+  </group_state>
+
+  <!-- Repeatable non-contact pose used by the local qualification suite. -->
+  <group_state name="left_demo" group="arm">
+    <joint name="arm_joint_1" value="0.30" />
+    <joint name="arm_joint_2" value="-0.45" />
+    <joint name="arm_joint_3" value="0.80" />
+    <joint name="arm_joint_4" value="-0.25" />
+    <joint name="arm_joint_5" value="-0.35" />
+    <joint name="arm_joint_6" value="0.25" />
+  </group_state>
+
+  <group_state name="open" group="hand">
+    <!-- Keep a 0.001 rad numerical cushion above the zero lower limits.
+         Gazebo can otherwise report about -1e-12 rad at the exact boundary,
+         which Jazzy's CheckStartStateBounds adapter rejects. -->
+    <joint name="thumb_cmc_roll" value="0.001" />
+    <joint name="thumb_cmc_yaw" value="0.001" />
+    <joint name="thumb_cmc_pitch" value="0.001" />
+    <joint name="index_mcp_pitch" value="0.001" />
+    <joint name="middle_mcp_pitch" value="0.001" />
+    <joint name="ring_mcp_pitch" value="0.001" />
+    <joint name="pinky_mcp_pitch" value="0.001" />
+  </group_state>
+
+  <!-- State-validity sweep in Gazebo / MoveIt found 64% closure valid and
+       65% closure colliding at index_distal <-> thumb_distal.  Use 62% as a
+       collision-free approach pose with a small numerical margin. -->
+  <group_state name="pregrasp" group="hand">
+    <joint name="thumb_cmc_roll" value="0.279" />
+    <joint name="thumb_cmc_yaw" value="0.434" />
+    <joint name="thumb_cmc_pitch" value="0.279" />
+    <joint name="index_mcp_pitch" value="0.713" />
+    <joint name="middle_mcp_pitch" value="0.713" />
+    <joint name="ring_mcp_pitch" value="0.713" />
+    <joint name="pinky_mcp_pitch" value="0.682" />
+  </group_state>
+
+  <!-- Verified in Gazebo on 2026-09-11.  The four MCP drivers close while
+       the thumb stays open; all eight PIP/DIP followers reached their URDF
+       mimic ratios exactly.  This is also the hand shape used for thumbs-up;
+       the arm / wrist orientation supplies the upward direction. -->
+  <group_state name="four_finger_fist" group="hand">
+    <joint name="thumb_cmc_roll" value="0.001" />
+    <joint name="thumb_cmc_yaw" value="0.001" />
+    <joint name="thumb_cmc_pitch" value="0.001" />
+    <joint name="index_mcp_pitch" value="1.15" />
+    <joint name="middle_mcp_pitch" value="1.15" />
+    <joint name="ring_mcp_pitch" value="1.15" />
+    <joint name="pinky_mcp_pitch" value="1.10" />
+  </group_state>
+
+  <!-- Conservative first version of the requested middle-finger gesture.
+       The thumb remains open until a dedicated collision sweep establishes a
+       safe folded-thumb range.  PIP/DIP followers move through URDF mimic
+       ratios, so leaving middle_mcp_pitch open extends the whole finger. -->
+  <group_state name="middle_finger" group="hand">
+    <joint name="thumb_cmc_roll" value="0.001" />
+    <joint name="thumb_cmc_yaw" value="0.001" />
+    <joint name="thumb_cmc_pitch" value="0.001" />
+    <joint name="index_mcp_pitch" value="1.15" />
+    <joint name="middle_mcp_pitch" value="0.001" />
+    <joint name="ring_mcp_pitch" value="1.15" />
+    <joint name="pinky_mcp_pitch" value="1.10" />
+  </group_state>
+
+  <!-- Intended contact closure.  Do not use this as a collision-free OMPL
+       goal; final object-dependent closure belongs to the hand controller. -->
+  <group_state name="contact_closed" group="hand">
+    <joint name="thumb_cmc_roll" value="0.45" />
+    <joint name="thumb_cmc_yaw" value="0.70" />
+    <joint name="thumb_cmc_pitch" value="0.45" />
+    <joint name="index_mcp_pitch" value="1.15" />
+    <joint name="middle_mcp_pitch" value="1.15" />
+    <joint name="ring_mcp_pitch" value="1.15" />
+    <joint name="pinky_mcp_pitch" value="1.10" />
+  </group_state>
+
+  <passive_joint name="thumb_mcp" />
+  <passive_joint name="thumb_ip" />
+  <passive_joint name="index_pip" />
+  <passive_joint name="index_dip" />
+  <passive_joint name="middle_pip" />
+  <passive_joint name="middle_dip" />
+  <passive_joint name="ring_pip" />
+  <passive_joint name="ring_dip" />
+  <passive_joint name="pinky_pip" />
+  <passive_joint name="pinky_dip" />
+
+  <!-- Conservative starter matrix: only directly connected bodies are disabled. -->
+  <disable_collisions link1="world" link2="arm_base_link" reason="Adjacent" />
+  <disable_collisions link1="arm_base_link" link2="arm_shoulder_link" reason="Adjacent" />
+  <disable_collisions link1="arm_shoulder_link" link2="arm_upper_link" reason="Adjacent" />
+  <disable_collisions link1="arm_upper_link" link2="arm_elbow_link" reason="Adjacent" />
+  <disable_collisions link1="arm_elbow_link" link2="arm_forearm_link" reason="Adjacent" />
+  <disable_collisions link1="arm_forearm_link" link2="arm_wrist_pitch_link" reason="Adjacent" />
+  <disable_collisions link1="arm_wrist_pitch_link" link2="arm_flange" reason="Adjacent" />
+  <disable_collisions link1="arm_flange" link2="hand_base_link" reason="Adjacent" />
+  <disable_collisions link1="arm_wrist_pitch_link" link2="hand_base_link" reason="Never" />
+  <disable_collisions link1="hand_base_link" link2="thumb_metacarpals_base1" reason="Adjacent" />
+  <disable_collisions link1="hand_base_link" link2="thumb_metacarpals_base2" reason="Never" />
+  <disable_collisions link1="hand_base_link" link2="thumb_metacarpals" reason="Never" />
+  <disable_collisions link1="thumb_metacarpals_base1" link2="thumb_metacarpals_base2" reason="Adjacent" />
+  <disable_collisions link1="thumb_metacarpals_base1" link2="thumb_metacarpals" reason="Never" />
+  <disable_collisions link1="thumb_metacarpals_base2" link2="thumb_metacarpals" reason="Adjacent" />
+  <disable_collisions link1="thumb_metacarpals" link2="thumb_proximal" reason="Adjacent" />
+  <disable_collisions link1="thumb_proximal" link2="thumb_distal" reason="Adjacent" />
+  <disable_collisions link1="hand_base_link" link2="index_proximal" reason="Adjacent" />
+  <disable_collisions link1="index_proximal" link2="index_middle" reason="Adjacent" />
+  <disable_collisions link1="index_middle" link2="index_distal" reason="Adjacent" />
+  <disable_collisions link1="hand_base_link" link2="middle_proximal" reason="Adjacent" />
+  <disable_collisions link1="middle_proximal" link2="middle_middle" reason="Adjacent" />
+  <disable_collisions link1="middle_middle" link2="middle_distal" reason="Adjacent" />
+  <disable_collisions link1="hand_base_link" link2="ring_proximal" reason="Adjacent" />
+  <disable_collisions link1="ring_proximal" link2="ring_middle" reason="Adjacent" />
+  <disable_collisions link1="ring_middle" link2="ring_distal" reason="Adjacent" />
+  <disable_collisions link1="hand_base_link" link2="pinky_proximal" reason="Adjacent" />
+  <disable_collisions link1="pinky_proximal" link2="pinky_middle" reason="Adjacent" />
+  <disable_collisions link1="pinky_middle" link2="pinky_distal" reason="Adjacent" />
+</robot>

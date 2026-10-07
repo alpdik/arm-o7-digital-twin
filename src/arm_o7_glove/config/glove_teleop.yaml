@@ -1,0 +1,18 @@
+glove_5dt:
+  ros__parameters:
+    device: auto  # finds the 5DT by USB id; or e.g. /dev/hidraw0
+    # Order of the five sensors in the glove's report. Swap names here if a
+    # simulated finger moves when you bend a different one.
+    sensor_fingers: [thumb, index, middle, ring, little]
+    # Fallback raw counts (open hand, full fist) measured 2026-10-07. The panel
+    # recalibrates every session and overwrites these at runtime.
+    open_raw: [969, 2109, 1318, 1891, 1477]
+    closed_raw: [1962, 2869, 2611, 3023, 2629]
+
+ti5_bridge:
+  ros__parameters:
+    port: /dev/ti5_hand
+    torque: 150    # 0..1000 of stall torque; the hand can reach 40 N at full
+    rate_hz: 30.0
+    max_step: 6    # angle units per frame (~180/s, full travel in ~0.5 s)
+    source: glove  # glove: follow the glove directly; sim: follow the simulated hand

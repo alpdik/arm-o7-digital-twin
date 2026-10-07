@@ -1,0 +1,40 @@
+o7_linkerhand_adapter:
+  ros__parameters:
+    # Both gates must remain false until the actual O7 has been identified and
+    # each motor direction/range has been verified at low speed with an E-stop.
+    command_enabled: false
+    mapping_verified: false
+    output_rate_hz: 30.0
+    heartbeat_timeout_sec: 0.30
+    deadman_timeout_sec: 0.30
+    sdk_state_timeout_sec: 0.30
+    max_trajectory_duration_sec: 5.0
+
+    topics:
+      trajectory_input: /real/hand_controller/joint_trajectory
+      sdk_command: /cb_right_hand_control_cmd_arc
+      sdk_state: /cb_right_hand_state_arc
+      hand_joint_states: /real/hand_joint_states
+      deadman: /twin/deadman
+      heartbeat: /twin/heartbeat
+
+    # PROVISIONAL right-hand O7/L7-style mapping. SDK order documented upstream:
+    # thumb flex, thumb abduction, index, middle, ring, little, thumb roll.
+    # scale converts the current URDF range into the SDK's documented L7-R arc
+    # range. The SDK explicitly warns that its right-hand URDF will change.
+    mapping:
+      thumb_cmc_roll:  {sdk_index: 6, scale: 1.3581444572, offset: 0.0, min: 0.0, max: 1.1339}
+      thumb_cmc_yaw:   {sdk_index: 1, scale: -0.7452186148, offset: 0.0, min: 0.0, max: 1.9189}
+      thumb_cmc_pitch: {sdk_index: 0, scale: 1.4574426739, offset: 0.0, min: 0.0, max: 0.5146}
+      index_mcp_pitch: {sdk_index: 2, scale: 1.1905636805, offset: 0.0, min: 0.0, max: 1.3607}
+      middle_mcp_pitch: {sdk_index: 3, scale: 1.1905636805, offset: 0.0, min: 0.0, max: 1.3607}
+      ring_mcp_pitch:  {sdk_index: 4, scale: 1.1905636805, offset: 0.0, min: 0.0, max: 1.3607}
+      pinky_mcp_pitch: {sdk_index: 5, scale: 1.1905636805, offset: 0.0, min: 0.0, max: 1.3607}
+
+arm_o7_real_joint_state_mux:
+  ros__parameters:
+    arm_topic: /real/arm_joint_states
+    hand_topic: /real/hand_joint_states
+    output_topic: /real/joint_states
+    state_timeout_sec: 0.30
+    publish_rate_hz: 30.0

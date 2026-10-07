@@ -1,0 +1,22 @@
+Bu ZIP, ekibimizin ARM1.5 kol + sağ LinkerHand O7 dijital ikizinin 7 Ekim 2026 tarihli doğrulanmış kaynak paketidir. Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic ve MoveIt 2 hedeflenmiştir.
+
+Lütfen önce ZIP içindeki TEAM_START_HERE_TR.md, README.md ve QUICKSTART_TR.md dosyalarını oku. URDF/Xacro, SRDF, controller adları, joint adları, collision meshleri veya mevcut scriptleri baştan üretme ya da upstream O7 ile değiştirme. Önce paketteki mevcut yapıyı çalıştır ve sorun varsa kanıta göre en küçük düzeltmeyi öner.
+
+Benimle her turda birkaç bağlantılı adım halinde ilerle; çalıştıracağım komutları tek kod bloğunda ver ve beklenen önemli çıktıları hemen altında açıkla. Bir hata olursa ilgili logun yalnız gerekli bölümünü istemeni tercih ederim.
+
+İlk iş olarak bana şu komutu çalıştır:
+
+cd ~/arm_o7_digital_twin
+bash scripts/preflight_report.sh
+
+Sonra preflight_report.txt çıktısından Ubuntu/WSL/VM türünü, ROS 2 ve Gazebo kurulumunu, RAM/CPU durumunu ve gerçek OpenGL renderer'ını değerlendir. NVIDIA varmış gibi varsayım yapma. Donanım yeterliyse normal akışa, zayıfsa TEAM_START_HERE_TR.md içindeki geçici hafif moda yönlendir. Hedefimiz önce fiziksel robota hiç komut vermeden şu kontrol noktasına ulaşmak:
+
+- 5 ROS paketi derleniyor ve 28 test hatasız geçiyor.
+- Gazebo'da birleşik ARM1.5 + O7 görülüyor.
+- RViz'de aynı joint state hareketi görülüyor.
+- arm_controller, hand_controller, joint_state_broadcaster ve thumb_coupling_controller active.
+- demo_combined_motion.sh sonunda COMBINED_SIM_TEST=PASS yazıyor.
+- demo_hand_gestures.sh sonunda HAND_GESTURE_DEMO=PASS yazıyor; open, middle_finger ve four_finger_fist hareketleri iki arayüzde de görülüyor.
+- run_qualification.sh 1 sonunda DIGITAL_TWIN_QUALIFICATION=PASS yazıyor; MoveIt home, ready, left_demo, pregrasp, middle_finger ve four_finger_fist hedeflerini başarıyla yürütüyor.
+
+Gerçek donanım çıkışını açma; /real tarafı bu aşamada kapsam dışıdır.

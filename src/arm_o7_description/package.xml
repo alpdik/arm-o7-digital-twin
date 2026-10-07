@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>arm_o7_description</name>
+  <version>0.1.0</version>
+  <description>Combined ARM1.5 and LinkerHand O7 right-hand robot description.</description>
+  <maintainer email="maintainer@example.com">ARM O7 Digital Twin Team</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>gz_ros2_control</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>urdf</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,26 @@
+# This is an interface contract, not a usable hardware driver configuration.
+# Replace the plugin/device settings in your vendor driver package and expose these names.
+real_backend_contract:
+  controller_manager: /real/controller_manager
+  # The arm driver owns this partial stream. arm_o7_linkerhand_adapter merges it
+  # with /real/hand_joint_states and exclusively publishes /real/joint_states.
+  joint_states_topic: /real/arm_joint_states
+  arm_trajectory_topic: /real/arm_controller/joint_trajectory
+  hand_trajectory_topic: /real/hand_controller/joint_trajectory
+  arm_follow_action: /real/arm_controller/follow_joint_trajectory
+  hand_follow_action: /real/hand_controller/follow_joint_trajectory
+  required_arm_joints:
+    - arm_joint_1
+    - arm_joint_2
+    - arm_joint_3
+    - arm_joint_4
+    - arm_joint_5
+    - arm_joint_6
+  required_hand_command_joints:
+    - thumb_cmc_roll
+    - thumb_cmc_yaw
+    - thumb_cmc_pitch
+    - index_mcp_pitch
+    - middle_mcp_pitch
+    - ring_mcp_pitch
+    - pinky_mcp_pitch

@@ -1,0 +1,46 @@
+arm_o7_twin_arbiter:
+  ros__parameters:
+    # Fail-closed default. Change to true only after the real controller has its
+    # own watchdog, e-stop, limits, and low-speed commissioning has been done.
+    enable_real_output: false
+    heartbeat_timeout_sec: 0.30
+    deadman_timeout_sec: 0.30
+    joint_state_timeout_sec: 0.30
+    start_state_tolerance_rad: 0.10
+    tracking_error_tolerance_rad: 0.20
+    require_all_command_joints: false
+    require_complete_controller_groups: true
+    status_period_sec: 0.5
+    shadow_publish_rate_hz: 20.0
+    shadow_trajectory_duration_sec: 0.10
+
+    topics:
+      command_input: /twin/joint_trajectory
+      deadman: /twin/deadman
+      heartbeat: /twin/heartbeat
+      mode_command: /twin/mode_command
+      mode_state: /twin/mode
+      status: /twin/status
+      sim_joint_states: /sim/joint_states
+      real_joint_states: /real/joint_states
+      sim_arm_output: /sim/arm_controller/joint_trajectory
+      sim_hand_output: /sim/hand_controller/joint_trajectory
+      real_arm_output: /real/arm_controller/joint_trajectory
+      real_hand_output: /real/hand_controller/joint_trajectory
+
+    # Combined-model position limits. Verify every value against the physical
+    # hardware/manufacturer data before enabling a real controller. Radians.
+    joint_limits:
+      arm_joint_1: {min: -3.14, max: 3.14}
+      arm_joint_2: {min: -1.57, max: 1.57}
+      arm_joint_3: {min: -1.30, max: 1.30}
+      arm_joint_4: {min: -3.14, max: 3.14}
+      arm_joint_5: {min: -1.30, max: 1.30}
+      arm_joint_6: {min: -3.14, max: 3.14}
+      thumb_cmc_roll: {min: 0.0, max: 1.1339}
+      thumb_cmc_yaw: {min: 0.0, max: 1.9189}
+      thumb_cmc_pitch: {min: 0.0, max: 0.5146}
+      index_mcp_pitch: {min: 0.0, max: 1.3607}
+      middle_mcp_pitch: {min: 0.0, max: 1.3607}
+      ring_mcp_pitch: {min: 0.0, max: 1.3607}
+      pinky_mcp_pitch: {min: 0.0, max: 1.3607}

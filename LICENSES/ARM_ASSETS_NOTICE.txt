@@ -1,0 +1,6 @@
+The ARM1.5 URDF and STL files were supplied directly by the user in
+"ARM1.5_URDF (1).rar". That archive did not contain a license file.
+
+The Apache-2.0 license for this integration project's original code does not
+grant rights to the ARM1.5 assets. Before publishing or redistributing those
+assets, the owner must confirm the applicable CAD/model license.
